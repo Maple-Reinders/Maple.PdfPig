@@ -124,23 +124,22 @@
                 {
                     var item = array.Data[i];
 
-                    if (!(item is IndirectReferenceToken obj))
+                    // Ignore something that isn't an indirect reference
+                    if (item is IndirectReferenceToken obj)
                     {
-                        throw new PdfDocumentFormatException($"The contents contained something which was not an indirect reference: {item}.");
-                    }
+                        var contentStream = DirectObjectFinder.Get<StreamToken>(obj, PdfScanner);
 
-                    var contentStream = DirectObjectFinder.Get<StreamToken>(obj, PdfScanner);
+                        if (contentStream is null)
+                        {
+                            throw new InvalidOperationException($"Could not find the contents for object {obj}.");
+                        }
 
-                    if (contentStream is null)
-                    {
-                        throw new InvalidOperationException($"Could not find the contents for object {obj}.");
-                    }
+                        bytes.Write(contentStream.Decode(FilterProvider, PdfScanner).Span);
 
-                    bytes.Write(contentStream.Decode(FilterProvider, PdfScanner).Span);
-
-                    if (i < array.Data.Count - 1)
-                    {
-                        bytes.Write((byte)'\n');
+                        if (i < array.Data.Count - 1)
+                        {
+                            bytes.Write((byte)'\n');
+                        }
                     }
                 }
 
