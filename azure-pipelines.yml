@@ -4,13 +4,12 @@
 # https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
 
 trigger:
-- master
+- maple-pckg
 
-pr:
-- master
+name: '1.0.$(Date:yyyyMMdd)$(Rev:r)'
 
 pool:
-  vmImage: 'vs2017-win2016'
+  vmImage: windows-latest
 
 variables:
   solution: '**/*.sln'
@@ -37,20 +36,10 @@ steps:
     includesymbols: true
     versioningScheme: 'off'
 
-- script: |
-    dotnet test ./src/UglyToad.PdfPig.Tests/UglyToad.PdfPig.Tests.csproj -c Debug --logger trx /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
-    cd ./src/UglyToad.PdfPig.Tests
-    dir
-  displayName: 'Build source, tests and run tests with coverage'
-
-- task: PublishTestResults@2
+- task: NuGetCommand@2
+  displayName: 'Push to Azure Artifacts'
   inputs:
-    testResultsFormat: 'VSTest'
-    testResultsFiles: '**/*.trx'
-    failTaskOnFailedTests: true
-    testRunTitle: 'Gather test results'
-
-# Upload coverage to codecov.io
-- script: |
-    %USERPROFILE%\.nuget\packages\codecov\1.9.0\tools\codecov.exe -f "./src/UglyToad.PdfPig.Tests/coverage.opencover.xml" -t $(codecov)
-  displayName: Upload coverage to codecov.io
+    command: 'push'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+    nuGetFeedType: 'internal'
+    publishVstsFeed: 'e786d536-6655-44c0-be8c-e893a91d0e8e/528f8f46-d747-443c-90d8-7bcaed97c514'
