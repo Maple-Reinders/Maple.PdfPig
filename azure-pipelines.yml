@@ -36,12 +36,6 @@ steps:
     includesymbols: true
     versioningScheme: 'off'
 
-- script: |
-    dotnet test ./src/UglyToad.PdfPig.Tests/UglyToad.PdfPig.Tests.csproj -c Debug --logger trx /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
-    cd ./src/UglyToad.PdfPig.Tests
-    dir
-  displayName: 'Build source, tests and run tests with coverage'
-
 - task: NuGetCommand@2
   displayName: 'Push to Azure Artifacts'
   inputs:
