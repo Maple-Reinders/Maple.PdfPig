@@ -124,6 +124,7 @@
                 {
                     var item = array.Data[i];
 
+                    // Hacky fix for Maple Reinders by Seth Harlaar
                     // Ignore something that isn't an indirect reference
                     if (item is IndirectReferenceToken obj)
                     {
