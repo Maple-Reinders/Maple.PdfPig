@@ -405,14 +405,11 @@
         /// <inheritdoc/>
         public virtual void ApplyXObject(NameToken xObjectName)
         {
+            // Hacky fix for Maple Reinders by Seth Harlaar 26/05/26
+            // Just ignore objects that cannot be found
             if (!ResourceStore.TryGetXObject(xObjectName, out var xObjectStream))
             {
-                if (ParsingOptions.SkipMissingFonts)
-                {
-                    return;
-                }
-
-                throw new PdfDocumentFormatException($"No XObject with name {xObjectName} found on page {PageNumber}.");
+                return;
             }
 
             // For now we will determine the type and store the object with the graphics state information preceding it.
